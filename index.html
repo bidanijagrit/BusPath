@@ -1,0 +1,333 @@
+<!DOCTYPE html>  <html>  
+<head>  
+    <title>BusPath - Haryana Bus Tracker</title>  
+    <meta name="viewport" content="width=device-width, initial-scale=1">  
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">  
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>  
+    <style>  
+        * {  
+            margin: 0;  
+            padding: 0;  
+            box-sizing: border-box;  
+            font-family: Arial, sans-serif;  
+        }  #splashScreen {  
+        position: fixed;  
+        top: 0;  
+        left: 0;  
+        width: 100%;  
+        height: 100%;  
+        background: #1a73e8;  
+        display: flex;  
+        justify-content: center;  
+        align-items: center;  
+        z-index: 9999;  
+        color: white;  
+        font-size: 24px;  
+    }  
+
+    #mainApp {  
+        display: none;  
+    }  
+
+    .header {  
+        background: #1a73e8;  
+        color: white;  
+        padding: 15px;  
+        text-align: center;  
+    }  
+
+    .search-container {  
+        padding: 15px;  
+        background: white;  
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);  
+    }  
+
+    select {  
+        width: 100%;  
+        padding: 12px;  
+        margin: 8px 0;  
+        border: 1px solid #ddd;  
+        border-radius: 4px;  
+        font-size: 16px;  
+    }  
+
+    button {  
+        width: 100%;  
+        padding: 12px;  
+        background: #1a73e8;  
+        color: white;  
+        border: none;  
+        border-radius: 4px;  
+        font-size: 16px;  
+        cursor: pointer;  
+        margin-top: 10px;  
+    }  
+
+    .bus-card {  
+        background: white;  
+        margin: 10px 15px;  
+        padding: 15px;  
+        border-radius: 8px;  
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);  
+    }  
+
+    .bus-header {  
+        display: flex;  
+        justify-content: space-between;  
+        margin-bottom: 10px;  
+    }  
+
+    .bus-details {  
+        display: flex;  
+        justify-content: space-between;  
+        color: #666;  
+        margin-bottom: 10px;  
+    }  
+
+    .track-btn {  
+        background: #34a853;  
+    }  
+
+    #mapContainer {  
+        padding: 15px;  
+        display: none;  
+    }  
+
+    #map {  
+        height: 400px;  
+        width: 100%;  
+        border-radius: 8px;  
+        border: 1px solid #ddd;  
+    }  
+</style>
+
+</head>  
+<body>  
+    <div id="splashScreen">  
+        Welcome to BusPath  
+    </div>  <div id="mainApp">  
+    <div class="header">  
+        <h1>BusPath</h1>  
+    </div>  
+
+    <div class="search-container">  
+        <select id="fromDistrict">  
+            <option value="">Select Source District</option>  
+            <option value="ambala">Ambala</option>  
+            <option value="bhiwani">Bhiwani</option>  
+            <option value="charkhidadri">Charkhi Dadri</option>  
+            <option value="faridabad">Faridabad</option>  
+            <option value="fatehabad">Fatehabad</option>  
+            <option value="gurugram">Gurugram</option>  
+            <option value="hisar">Hisar</option>  
+            <option value="jhajjar">Jhajjar</option>  
+            <option value="jind">Jind</option>  
+            <option value="kaithal">Kaithal</option>  
+            <option value="karnal">Karnal</option>  
+            <option value="kurukshetra">Kurukshetra</option>  
+            <option value="mahendragarh">Mahendragarh</option>  
+            <option value="nuh">Nuh</option>  
+            <option value="palwal">Palwal</option>  
+            <option value="panchkula">Panchkula</option>  
+            <option value="panipat">Panipat</option>  
+            <option value="rewari">Rewari</option>  
+            <option value="rohtak">Rohtak</option>  
+            <option value="sirsa">Sirsa</option>  
+            <option value="sonipat">Sonipat</option>  
+            <option value="yamunanagar">Yamunanagar</option>  
+        </select>  
+
+        <select id="toDistrict">  
+            <option value="">Select Destination District</option>  
+            <option value="ambala">Ambala</option>  
+            <option value="bhiwani">Bhiwani</option>  
+            <option value="charkhidadri">Charkhi Dadri</option>  
+            <option value="faridabad">Faridabad</option>  
+            <option value="fatehabad">Fatehabad</option>  
+            <option value="gurugram">Gurugram</option>  
+            <option value="hisar">Hisar</option>  
+            <option value="jhajjar">Jhajjar</option>  
+            <option value="jind">Jind</option>  
+            <option value="kaithal">Kaithal</option>  
+            <option value="karnal">Karnal</option>  
+            <option value="kurukshetra">Kurukshetra</option>  
+            <option value="mahendragarh">Mahendragarh</option>  
+            <option value="nuh">Nuh</option>  
+            <option value="palwal">Palwal</option>  
+            <option value="panchkula">Panchkula</option>  
+            <option value="panipat">Panipat</option>  
+            <option value="rewari">Rewari</option>  
+            <option value="rohtak">Rohtak</option>  
+            <option value="sirsa">Sirsa</option>  
+            <option value="sonipat">Sonipat</option>  
+            <option value="yamunanagar">Yamunanagar</option>  
+        </select>  
+
+        <button onclick="searchBuses()">Search Buses</button>  
+    </div>  
+
+    <div id="busList"></div>  
+    <div id="mapContainer">  
+        <div id="map"></div>  
+    </div>  
+</div>  
+
+<script>  
+    let map;  
+    let currentBuses = [];  
+
+    // District coordinates  
+    const districtCoords = {  
+        'ambala': [30.3752, 76.7821],  
+        'bhiwani': [28.7975, 76.1322],  
+        'charkhidadri': [28.5928, 76.2718],  
+        'faridabad': [28.4089, 77.3178],  
+        'fatehabad': [29.5155, 75.4555],  
+        'gurugram': [28.4595, 77.0266],  
+        'hisar': [29.1492, 75.7217],  
+        'jhajjar': [28.6062, 76.6566],  
+        'jind': [29.3164, 76.3157],  
+        'kaithal': [29.8056, 76.3984],  
+        'karnal': [29.6857, 76.9905],  
+        'kurukshetra': [29.9695, 76.8783],  
+        'mahendragarh': [28.2744, 76.1498],  
+        'nuh': [28.1083, 77.0019],  
+        'palwal': [28.1473, 77.3260],  
+        'panchkula': [30.6942, 76.8606],  
+        'panipat': [29.3909, 76.9635],  
+        'rewari': [28.1920, 76.6190],  
+        'rohtak': [28.8955, 76.6066],  
+        'sirsa': [29.5321, 75.0318],  
+        'sonipat': [28.9931, 77.0151],  
+        'yamunanagar': [30.1290, 77.2674]  
+    };  
+
+    // Initialize map  
+    window.onload = function() {  
+        setTimeout(() => {  
+            document.getElementById('splashScreen').style.display = 'none';  
+            document.getElementById('mainApp').style.display = 'block';  
+        }, 2000);  
+
+        // Initialize map  
+        map = L.map('map').setView([29.0588, 76.0856], 7);  
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {  
+            maxZoom: 19  
+        }).addTo(map);  
+    };  
+
+    function searchBuses() {  
+        const from = document.getElementById('fromDistrict').value;  
+        const to = document.getElementById('toDistrict').value;  
+
+        if (!from || !to || from === to) {  
+            alert('Please select different source and destination districts');  
+            return;  
+        }  
+
+        currentBuses = generateBuses(from, to);  
+        displayBuses(currentBuses);  
+        document.getElementById('mapContainer').style.display = 'none';  
+    }  
+
+    function generateBuses(from, to) {  
+        const buses = [];  
+        const count = Math.floor(Math.random() * 3) + 2;  
+
+        for (let i = 0; i < count; i++) {  
+            buses.push({  
+                id: 'HR-' + Math.floor(Math.random() * 9000 + 1000),  
+                type: ['AC Volvo', 'Non-AC Deluxe', 'AC Semi-Deluxe'][Math.floor(Math.random() * 3)],  
+                departure: generateRandomTime(),  
+                arrival: generateRandomTime(),  
+                fare: Math.floor(Math.random() * 500) + 200,  
+                from: from,  
+                to: to  
+            });  
+        }  
+        return buses;  
+    }  
+
+    function displayBuses(buses) {  
+        const busListDiv = document.getElementById('busList');  
+        busListDiv.innerHTML = '';  
+
+        buses.forEach(bus => {  
+            const busCard = document.createElement('div');  
+            busCard.className = 'bus-card';  
+            busCard.innerHTML =   
+                <div class="bus-header">  
+                    <strong>${bus.id}</strong>  
+                    <span>${bus.type}</span>  
+                </div>  
+                <div class="bus-details">  
+                    <span>${bus.departure} → ${bus.arrival}</span>  
+                    <span>₹${bus.fare}</span>  
+                </div>  
+                <button class="track-btn" onclick="trackBus('${bus.id}')">Track Bus</button>  
+            ;  
+            busListDiv.appendChild(busCard);  
+        });  
+    }  
+
+    function trackBus(busId) {  
+        const bus = currentBuses.find(b => b.id === busId);  
+        if (!bus) return;  
+
+        document.getElementById('mapContainer').style.display = 'block';  
+        map.invalidateSize();  
+
+        // Clear previous layers  
+        map.eachLayer((layer) => {  
+            if (layer instanceof L.Marker || layer instanceof L.Polyline) {  
+                map.removeLayer(layer);  
+            }  
+        });  
+
+        const fromCoord = districtCoords[bus.from];  
+        const toCoord = districtCoords[bus.to];  
+
+        // Add markers  
+        L.marker(fromCoord).addTo(map);  
+        L.marker(toCoord).addTo(map);  
+
+        // Draw route  
+        L.polyline([fromCoord, toCoord], {color: 'blue'}).addTo(map);  
+
+        // Fit bounds  
+        map.fitBounds([fromCoord, toCoord]);  
+    }  
+
+    function generateRandomTime() {  
+        const hours = Math.floor(Math.random() * 24);  
+        const minutes = Math.floor(Math.random() * 60);  
+        return ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')};  
+    }  
+</script>
+
+</body>  
+</html>\<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Bus Tracking</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBmdh_b-a1e7pFOi4g0Uah-1G62Z6L5E70"></script>
+    <script>
+        function initMap() {
+            var location = { lat: 28.7041, lng: 77.1025 }; // Default: Delhi
+            var map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: location
+            });
+
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h2>BusPath Live Tracking</h2>
+    <div id="map" style="height: 500px; width: 100%;"></div>
+</body>
+</html>
